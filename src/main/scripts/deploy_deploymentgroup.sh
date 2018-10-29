@@ -1,11 +1,15 @@
 #!/bin/bash
 
 # Read input properties
+IFS=$(echo -en "\n\b")
 for prop in $(cat $1|egrep -v '^#')
 do
     name=$(echo $prop|cut -d'=' -f1)
-    export ${!name}=$(echo $prop|cut -d'=' -f2-)
+    value=\"$(echo $prop|cut -d'=' -f2-)\"
+    eval "$name=$value"
 done
+unset IFS
+
 
 # Setup environment
 if [ ! -z "$infaHome" ]
@@ -51,13 +55,16 @@ $connect_command
 # See if both source and destination folder mappings are defined:
 if ( [ ! -z "$folder" ] && [ ! -z "$folderDest"] )
 then
-    folder_list="$folder"
+    folder_source_list=($(echo $folder|sed 's#\\n# #g'|tr ',' ' '))
+    folder_destination_list=($(echo $folderDest|sed 's#\\n# #g'|tr ',' ' '))
 else if [ ! -z "$folder" ]
-
+then
+    folder_source_list=($(echo $folder|sed 's#\\n# #g'|tr ',' ' '))
 else
     # Get list of folders from source, to use to build the source folder override in the control file
     # This will just specify all folders as potential source folders, pmrep does not support listing folders under a deploymentgroup
-    folder_list=$(pmrep -)
+    folder_source_list=($(pmrep listobjects -o folder | tail -n +9 | head -n -3))
+fi
 
 # Change copydeploymentgroup to YES/NO from true/false
 if [ ${copydeploymentgroup,,} == "true" ]
@@ -67,8 +74,8 @@ else
     export copydeploymentgroup="NO"
 fi
 
-def control = new File(controlFile)
-read -r -d '' controlFile << EOM
+echo > controlFile.ctl
+read -r -d '' controlFile.ctl << EOM
 <DEPLOYPARAMS
     COPYDEPENDENCY="YES"
     COPYDEPLOYMENTGROUP="${copydeploymentgroup}"
@@ -82,3 +89,38 @@ read -r -d '' controlFile << EOM
   <DEPLOYGROUP CLEARSRCDEPLOYGROUP="NO">
 EOM
 
+# Output folder lists to folder override mappings in control file.  If arrays are unequal, only use source, as long as source is defined.
+if ( [ ! -z "$folder_source_list" ] && [ ! -z "$folder_destination_list" ] && [  && [ ${#folder_source_list[@]} -eq ${#folder_destination_list[@]} ] )
+then
+    for i in {0..${#folder_source_list[@]}}
+    do
+        read -r -d '' controlFile.ctl << EOM
+    <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
+      TARGETFOLDERNAME="${folder_destination_list[i]}" TARGETFOLDERTYPE="LOCAL" MODIFIEDMANUALLY="YES"/>
+EOM
+    done
+else if [ ! -z "$folder_source_list" ]
+then
+    for i in {0..${#folder_source_list[@]}}
+    do
+        read -r -d '' controlFile.ctl << EOM
+    <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
+      TARGETFOLDERNAME="${folder_source_list[i]}" TARGETFOLDERTYPE="LOCAL" MODIFIEDMANUALLY="YES"/>
+EOM
+    done
+else
+    echo "Error:  No folder source mapping could be obtained.  Do you have folders defined in your source?"
+    exit 1
+fi
+
+# Add label to control file if defined
+if [ ! -z "$label" ]
+then
+    read -r -d '' controlFile.ctl << EOM
+    <APPLYLABEL SOURCELABELNAME = "$label" SOURCEMOVELABEL = "NO"
+      TARGETLABELNAME = "$label" TARGETMOVELABEL = "NO"/>
+EOM
+fi
+
+# Add end tags to control file
+echo "  </DEPLOYGROUP>\n</DEPLOYPARAMS>" >> controlFile.ctl
