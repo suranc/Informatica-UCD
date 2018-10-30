@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Read input properties
 IFS=$(echo -en "\n\b")
 for prop in $(cat $1|egrep -v '^#')
@@ -74,8 +76,7 @@ else
     export copydeploymentgroup="NO"
 fi
 
-echo > controlFile.ctl
-read -r -d '' controlFile.ctl << EOM
+cat >controlFile.ctl <<EOM
 <DEPLOYPARAMS
     COPYDEPENDENCY="YES"
     COPYDEPLOYMENTGROUP="${copydeploymentgroup}"
@@ -92,18 +93,18 @@ EOM
 # Output folder lists to folder override mappings in control file.  If arrays are unequal, only use source, as long as source is defined.
 if ( [ ! -z "$folder_source_list" ] && [ ! -z "$folder_destination_list" ]  && [ ${#folder_source_list[@]} -eq ${#folder_destination_list[@]} ] )
 then
-    for i in {0..${#folder_source_list[@]}}
+    for i in $(seq 0 ${#folder_source_list[@]})
     do
-        read -r -d '' controlFile.ctl << EOM
+        cat >>controlFile.ctl <<EOM
     <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
       TARGETFOLDERNAME="${folder_destination_list[i]}" TARGETFOLDERTYPE="LOCAL" MODIFIEDMANUALLY="YES"/>
 EOM
     done
 elif [ ! -z "$folder_source_list" ]
 then
-    for i in {0..${#folder_source_list[@]}}
+    for i in $(seq 0 ${#folder_source_list[@]})
     do
-        read -r -d '' controlFile.ctl << EOM
+        cat >>controlFile.ctl <<EOM
     <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
       TARGETFOLDERNAME="${folder_source_list[i]}" TARGETFOLDERTYPE="LOCAL" MODIFIEDMANUALLY="YES"/>
 EOM
@@ -116,11 +117,11 @@ fi
 # Add label to control file if defined
 if [ ! -z "$label" ]
 then
-    read -r -d '' controlFile.ctl << EOM
+    cat >>controlFile.ctl <<EOM
     <APPLYLABEL SOURCELABELNAME = "$label" SOURCEMOVELABEL = "NO"
       TARGETLABELNAME = "$label" TARGETMOVELABEL = "NO"/>
 EOM
 fi
 
 # Add end tags to control file
-echo "  </DEPLOYGROUP>\n</DEPLOYPARAMS>" >> controlFile.ctl
+echo -e "  </DEPLOYGROUP>\n</DEPLOYPARAMS>" >> controlFile.ctl
