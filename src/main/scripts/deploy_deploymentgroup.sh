@@ -125,3 +125,16 @@ fi
 
 # Add end tags to control file
 echo -e "  </DEPLOYGROUP>\n</DEPLOYPARAMS>" >> controlFile.ctl
+
+# Build command to execute deploy deploymentgroup using the control file we built
+deploy_command="pmrep deploydeploymentgroup -p $groupname -c controlFile.ctl -r $repo -n $username -x $password"
+
+if [ ! -z "$securityDomain" ]
+then
+    deploy_command="$deploy_command -s $securityDomain"
+fi
+
+deploy_command="$deploy_command -h $host -o $port"
+
+# Execute deploy
+$deploy_command
