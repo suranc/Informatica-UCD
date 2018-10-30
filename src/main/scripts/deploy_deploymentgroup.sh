@@ -37,12 +37,12 @@ export HOME=$(readlink -f .)
 # Connect to repository
 connect_command="pmrep connect -r $srcrepo -n $srcusername -x $srcpassword"
 
-if [ !-z "$srcsecurityDomain" ]
+if [ ! -z "$srcsecurityDomain" ]
 then
     connect_command="$connect_command -s $srcsecurityDomain"
 fi
 
-if [ !-z "$srcdomain" ]
+if [ ! -z "$srcdomain" ]
 then
     connect_command="$connect_command -d $srcdomain"
 else
@@ -57,7 +57,7 @@ if ( [ ! -z "$folder" ] && [ ! -z "$folderDest"] )
 then
     folder_source_list=($(echo $folder|sed 's#\\n# #g'|tr ',' ' '))
     folder_destination_list=($(echo $folderDest|sed 's#\\n# #g'|tr ',' ' '))
-else if [ ! -z "$folder" ]
+elif [ ! -z "$folder" ]
 then
     folder_source_list=($(echo $folder|sed 's#\\n# #g'|tr ',' ' '))
 else
@@ -90,7 +90,7 @@ read -r -d '' controlFile.ctl << EOM
 EOM
 
 # Output folder lists to folder override mappings in control file.  If arrays are unequal, only use source, as long as source is defined.
-if ( [ ! -z "$folder_source_list" ] && [ ! -z "$folder_destination_list" ] && [  && [ ${#folder_source_list[@]} -eq ${#folder_destination_list[@]} ] )
+if ( [ ! -z "$folder_source_list" ] && [ ! -z "$folder_destination_list" ]  && [ ${#folder_source_list[@]} -eq ${#folder_destination_list[@]} ] )
 then
     for i in {0..${#folder_source_list[@]}}
     do
@@ -99,7 +99,7 @@ then
       TARGETFOLDERNAME="${folder_destination_list[i]}" TARGETFOLDERTYPE="LOCAL" MODIFIEDMANUALLY="YES"/>
 EOM
     done
-else if [ ! -z "$folder_source_list" ]
+elif [ ! -z "$folder_source_list" ]
 then
     for i in {0..${#folder_source_list[@]}}
     do
