@@ -3,6 +3,7 @@
 set -e
 
 # Read input properties
+OLDIFS=$IFS
 IFS=$(echo -en "\n\b")
 for prop in $(cat $1|egrep -v '^#')
 do
@@ -10,7 +11,7 @@ do
     value=\"$(echo $prop|cut -d'=' -f2-)\"
     eval "$name=$value"
 done
-unset IFS
+IFS=$OLDIFS
 
 
 # Setup environment
