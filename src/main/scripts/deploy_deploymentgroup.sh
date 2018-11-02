@@ -93,7 +93,7 @@ EOM
 # Output folder lists to folder override mappings in control file.  If arrays are unequal, only use source, as long as source is defined.
 if ( [ ! -z "$folder_source_list" ] && [ ! -z "$folder_destination_list" ]  && [ ${#folder_source_list[@]} -eq ${#folder_destination_list[@]} ] )
 then
-    for i in $(seq 0 ${#folder_source_list[@]})
+    for i in $(seq 1 $(expr ${#folder_source_list[@]} - 1))
     do
         cat >>controlFile.ctl <<EOM
     <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
@@ -102,7 +102,7 @@ EOM
     done
 elif [ ! -z "$folder_source_list" ]
 then
-    for i in $(seq 0 ${#folder_source_list[@]})
+    for i in $(seq 1 $(expr ${#folder_source_list[@]} - 1))
     do
         cat >>controlFile.ctl <<EOM
     <OVERRIDEFOLDER SOURCEFOLDERNAME="${folder_source_list[i]}" SOURCEFOLDERTYPE="LOCAL"
