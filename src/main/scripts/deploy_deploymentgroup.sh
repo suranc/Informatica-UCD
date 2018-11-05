@@ -13,7 +13,6 @@ do
 done
 IFS=$OLDIFS
 
-
 # Setup environment
 if [ ! -z "$infaHome" ]
 then
@@ -53,6 +52,9 @@ else
 fi
 
 # Run connection command
+echo -ne "\n\n------------------------------------------------\nRunning: "
+echo $connect_command
+echo -ne "------------------------------------------------\n"
 $connect_command
 
 # See if both source and destination folder mappings are defined:
@@ -135,7 +137,14 @@ then
     deploy_command="$deploy_command -s $securityDomain"
 fi
 
-deploy_command="$deploy_command -h $host -o $port"
+# Add host and port if both are defined:
+if ( [ ! -z "$host" ] && [ ! -z "$port" ] )
+then
+    deploy_command="$deploy_command -h $host -o $port"
+fi
 
 # Execute deploy
+echo -ne "\n\n------------------------------------------------\nRunning: "
+echo $deploy_command
+echo -ne "------------------------------------------------\n"
 $deploy_command
