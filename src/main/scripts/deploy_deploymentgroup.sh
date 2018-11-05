@@ -137,9 +137,11 @@ then
     deploy_command="$deploy_command -s $securityDomain"
 fi
 
-# Add host and port if both are defined:
-if ( [ ! -z "$host" ] && [ ! -z "$port" ] )
+# If target domain is set, use that, otherwise use host and port.
+if [ ! -z "$domain" ]
 then
+    deploy_command="$deploy_command -d $domain"
+else
     deploy_command="$deploy_command -h $host -o $port"
 fi
 

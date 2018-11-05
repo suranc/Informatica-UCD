@@ -11,7 +11,7 @@
 -->
 <plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <header>
-    <identifier version="29" id="com.urbancode.air.plugin.Informatica" name="Informatica"/>
+    <identifier version="30" id="com.urbancode.air.plugin.Informatica" name="Informatica"/>
     <description>
     The Informatica plugin is an automation based plugin. It is executed as part of the deployment to migrate Informatica configuration and run scripts against the Informatica server and for creating and deploying deploying groups.
     </description>
@@ -159,6 +159,9 @@
       <property name="securityDomain">
         <property-ui type="textBox" label="Security Domain" description="Required if you use LDAP authentication.
                      Name of the security domain that the user or group belongs to. Default is Native"/>
+      </property>
+      <property name="domain" required="false">
+        <property-ui type="textBox" label="Target Domain Name" description="The domain name of the Informatica server." default-value="${p?:resource/informatica/domain}"/>
       </property>
       <property name="infaHome">
         <property-ui type="textBox" label="INFA HOME" description="The INFA_HOME variable to be set on the environment. If set we will also use ${INFA_HOME}/server/bin/pmrep as the exe and add this to LD_LIBRARY_PATH and LIBPATH"/>
