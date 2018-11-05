@@ -141,6 +141,9 @@
       <property name="repo" required="true">
         <property-ui type="textBox" label="Repository" description="The repository name in Informatica." default-value="${p:resource/informatica/repo}"/>
       </property>
+      <property name="domain" required="false">
+        <property-ui type="textBox" label="Domain Name" description="The domain name of the Informatica server.  Will be preferred over host/port." default-value="${p?:resource/informatica/domain}"/>
+      </property>
       <property name="host">
         <property-ui type="textBox" label="Host" description="The host name of the Informatica server." default-value="${p?:resource/informatica/domain}"/>
       </property>
@@ -159,9 +162,6 @@
       <property name="securityDomain">
         <property-ui type="textBox" label="Security Domain" description="Required if you use LDAP authentication.
                      Name of the security domain that the user or group belongs to. Default is Native"/>
-      </property>
-      <property name="domain" required="false">
-        <property-ui type="textBox" label="Target Domain Name" description="The domain name of the Informatica server." default-value="${p?:resource/informatica/domain}"/>
       </property>
       <property name="infaHome">
         <property-ui type="textBox" label="INFA HOME" description="The INFA_HOME variable to be set on the environment. If set we will also use ${INFA_HOME}/server/bin/pmrep as the exe and add this to LD_LIBRARY_PATH and LIBPATH"/>

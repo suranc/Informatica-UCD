@@ -47,8 +47,11 @@ fi
 if [ ! -z "$srcdomain" ]
 then
     connect_command="$connect_command -d $srcdomain"
-else
+elif ( [ ! -z "$srchost" ] && [ ! -z "$srcport" ] )
+then 
     connect_command="$connect_command -h $srchost -o $srcport"
+else
+    echo "ERROR:  Neither a Source Domain, nor Source Host and Source Port combo are defined."
 fi
 
 # Run connection command
@@ -141,8 +144,11 @@ fi
 if [ ! -z "$domain" ]
 then
     deploy_command="$deploy_command -d $domain"
-else
+elif ( [ ! -z "$srchost" ] && [ ! -z "$srcport" ] )
+then
     deploy_command="$deploy_command -h $host -o $port"
+else
+    echo "ERROR:  Neither a Domain, nor Host and Port combo are defined."
 fi
 
 # Execute deploy
