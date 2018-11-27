@@ -51,7 +51,8 @@ elif ( [ ! -z "$srchost" ] && [ ! -z "$srcport" ] )
 then 
     connect_command="$connect_command -h $srchost -o $srcport"
 else
-    echo "ERROR:  Neither a Source Domain, nor Source Host and Source Port combo are defined."
+    echo -e "\n\nERROR:  Neither a Source Domain, nor Source Host and Source Port combo are defined."
+    exit 1
 fi
 
 # Run connection command
@@ -116,8 +117,8 @@ then
 EOM
     done
 else
-    echo "Error:  No folder source mapping could be obtained.  Do you have folders defined in your source?"
-    exit 1
+    echo -e "\n\nError:  No folder source mapping could be obtained.  Do you have folders defined in your source?"
+    exit 2
 fi
 
 # Add label to control file if defined
@@ -148,7 +149,8 @@ elif ( [ ! -z "$srchost" ] && [ ! -z "$srcport" ] )
 then
     deploy_command="$deploy_command -h $host -o $port"
 else
-    echo "ERROR:  Neither a Domain, nor Host and Port combo are defined."
+    echo -e "\n\nERROR:  Neither a Domain, nor Host and Port combo are defined."
+    exit 3
 fi
 
 # Execute deploy
