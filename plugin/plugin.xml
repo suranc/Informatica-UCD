@@ -11,7 +11,7 @@
 -->
 <plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <header>
-    <identifier version="30" id="com.urbancode.air.plugin.Informatica" name="Informatica"/>
+    <identifier version="31" id="com.urbancode.air.plugin.Informatica" name="Informatica"/>
     <description>
     The Informatica plugin is an automation based plugin. It is executed as part of the deployment to migrate Informatica configuration and run scripts against the Informatica server and for creating and deploying deploying groups.
     </description>
@@ -201,6 +201,12 @@
         <property-ui type="textAreaBox" label="Destination Informatica Folder(s)" description="The destination folder(s) for the deployment group objects.
                     This is a 1:1 mapping with 'Source Informatica Folder(S)'. Separate each folder with a comma or new line. If this property is blank but source is provided, the source
                     folder names will be used as the destination folder names. "/>
+      </property>
+      <property name="syncFolders" required="true">
+        <property-ui type="textBox" label="Sync Folders to Target" description="Set to true to automatically create folders on the target that do not exist but are in the source.  This option is only observed when there is no mappings set, and the source folders are being automatically mapped to the destination." default-value="false"/>
+      </property>
+      <property name="syncExcludePrefix" required="false">
+        <property-ui type="textBox" label="Prefixes to exclude on Folder Sync" description="A comma seperated list of prefixes to exclude from the automatic folder sync.  This setting is only observed when folders are being automatically created and no fixed mappings are defined."/>
       </property>
       <property name="label" required="false">
         <property-ui type="textBox" label="Informatica Label" description="The name of the label used to populate the dynamic deployment group if deploying a dynamic deployment group." hidden="true" />

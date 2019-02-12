@@ -33,8 +33,10 @@ then
     fi
 fi
 
-# Change home directory to working directory, so connections are tied to this deployment
-export HOME=$(readlink -f .)
+################# Connect to Source Repository ############################
+# Set INFA_REPCNX_INFO to source connection file
+SOURCE_CONNECTION="$(readlink -f .)/source.cnx"
+export INFA_REPCNX_INFO="$SOURCE_CONNECTION"
 
 # Connect to repository
 connect_command="pmrep connect -r $srcrepo -n $srcusername -x $srcpassword"
@@ -60,6 +62,38 @@ echo -ne "\n\n------------------------------------------------\nRunning: "
 echo $connect_command
 echo -ne "------------------------------------------------\n"
 $connect_command
+#############################################################################
+
+################# Connect to Target Repository ############################
+# Set INFA_REPCNX_INFO to target connection file
+TARGET_CONNECTION="$(readlink -f .)/target.cnx"
+export INFA_REPCNX_INFO="$TARGET_CONNECTION"
+
+# Connect to repository
+connect_command="pmrep connect -r $repo -n $username -x $password"
+
+if [ ! -z "$securityDomain" ]
+then
+    connect_command="$connect_command -s $securityDomain"
+fi
+
+if [ ! -z "$domain" ]
+then
+    connect_command="$connect_command -d $domain"
+elif ( [ ! -z "$host" ] && [ ! -z "$port" ] )
+then 
+    connect_command="$connect_command -h $host -o $port"
+else
+    echo -e "\n\nERROR:  Neither a Source Domain, nor Source Host and Source Port combo are defined."
+    exit 1
+fi
+
+# Run connection command
+echo -ne "\n\n------------------------------------------------\nRunning: "
+echo $connect_command
+echo -ne "------------------------------------------------\n"
+$connect_command
+#############################################################################
 
 # See if both source and destination folder mappings are defined:
 if ( [ ! -z "$folder" ] && [ ! -z "$folderDest"] )
@@ -73,7 +107,47 @@ else
     # Get list of folders from source, to use to build the source folder override in the control file
     # This will just specify all folders as potential source folders, pmrep does not support listing folders under a deploymentgroup
     folder_source_list=($(pmrep listobjects -o folder | tail -n +9 | head -n -3))
+
+    # Check if we are automatically creating folders that do not exist.  If so, create ones from destination that do not exist in that source list.
+    if [ "$syncFolders" == "true" ]
+    then        
+        # Switch connectiont to target instead of source
+        export INFA_REPCNX_INFO="$TARGET_CONNECTION"
+
+        # Get list of folders in target, so we know which ones we need to create.
+        pmrep listobjects -o folder | tail -n +9 | head -n -3 > existing_folders
+
+        # If exclude list is not empty, turn into set of matches to exclude
+        if [ ! -z "$syncExcludePrefix" ]
+        then
+            syncExcludeList="($(echo $syncExcludePrefix|tr ',' '|'))"
+        fi
+
+        # Create each folder that does not exist.
+        for i in $(seq 1 $(expr ${#folder_source_list[@]} - 1))
+        do
+            folder="${folder_source_list[i]}"
+
+            # See if folder is excluded, skip to next folder if so
+            if ( [ ! -z "$syncExcludeList" ] && [ -z "$(echo $folder|egrep "^$syncExcludeList")" ]
+            then
+                continue
+            fi
+
+            # See if folder already exists in destionation, skip in that case as well
+            if [ ! -z "$(egrep "^$folder$" existing_folders)" ]
+            then
+                continue
+            fi
+
+            #####################################
+            # Also need to set to shared if shared
+
+            pmrep createfolder -n $folder -o Adminstrator -a Native
 fi
+
+# Switch connection back to source for deployment
+export INFA_REPCNX_INFO="$SOURCE_CONNECTION"
 
 # Change copydeploymentgroup to YES/NO from true/false
 if [ ${copydeploymentgroup,,} == "true" ]

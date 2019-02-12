@@ -278,8 +278,8 @@ else {
         def procBuilder = new ProcessBuilder(command as String[])
         procBuilder.directory(workDir)
 
-        // Set HOME environment variable to current working directory, so connections are deploy specific.
-        env.put("HOME", workDir.toString())
+        // Set INFA_REPCNX_INFO environment variable to current working directory, so connections are deploy specific.
+        env.put("INFA_REPCNX_INFO", workDir.toString() + File.pathSeparator + "connection.cnx")
 
         def env = procBuilder.environment();
         if (infaHome != null && infaHome != "") {
