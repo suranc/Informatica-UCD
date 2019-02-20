@@ -257,7 +257,4 @@
   <migrate to-version="30">
     <migrate-command name="Deploy Deployment Group"/>
   </migrate>
-  <migrate to-version="31">
-    <migrate-command name="Deploy Deployment Group"/>
-  </migrate>
 </plugin-upgrade>
